@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+# Get the absolute path to the script's directory
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Check if the script's directory is already in the PATH
+if [[ ":$PATH:" != *":$SCRIPT_DIR:"* ]]; then
+  # Add the script's directory to the PATH
+  export PATH="$SCRIPT_DIR:$PATH"
+fi
+
+# Run the deploy.rb script
+ruby /path/to/deploy.rb "$@"
