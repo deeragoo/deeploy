@@ -10,4 +10,4 @@ if [[ ":$PATH:" != *":$SCRIPT_DIR:"* ]]; then
 fi
 
 # Run the deploy.rb script
-ruby /path/to/deploy.rb "$@"
+ruby ./deploy.rb "$@"
