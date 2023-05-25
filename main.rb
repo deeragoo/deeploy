@@ -1,58 +1,81 @@
-#!/usr/bin/env ruby
+require 'open3'
 
-# Get the branch name from the command-line argument
-branch_name = 'qa'
+def update_branch(branch)
+  # Fetch the latest changes from the remote branch
+  system("git fetch origin #{branch}")
 
-# Check if a branch name is provided
-if branch_name.nil?
-  puts "Please provide a branch name."
-  exit 1
+  # Reset the branch to the latest remote commit
+  system("git reset --hard origin/#{branch}")
+
+  if $?.success?
+    puts "Updated #{branch} branch with the latest changes."
+  else
+    puts "Failed to update #{branch} branch."
+  end
 end
 
-# Set the AWS profile
-profile = 'your_aws_profile_name'  # Replace with your AWS profile name
-ENV['AWS_PROFILE'] = profile
+def make_branch_even_with_main(branch)
+  # Checkout the branch
+  system("git checkout #{branch}")
 
-# Checkout main branch and pull latest changes
-system('git checkout main')
-system('git pull origin main')
+  # Update the branch with the latest changes
+  update_branch(branch)
 
-# Prompt for confirmation to deploy release branch to main
-print "Do you want to deploy the #{branch_name} branch to main? (y/n) "
-confirm = gets.chomp
+  # Prompt for confirmation
+  print "Do you want to make the #{branch} branch even with main? (y/n) "
+  confirm = gets.chomp.downcase
 
-if confirm == "y"
-  # Prompt for confirmation to continue if QA and release branch are not even
-  if system("git diff main...#{branch_name}")
-    puts "The QA and release branches are not even."
-    system("git diff main...#{branch_name}")
-    print "Do you want to continue with deployment? (y/n) "
-    confirm = gets.chomp
-    unless confirm == "y"
-      puts "Deployment cancelled."
-      exit 1
+  if confirm == 'y'
+    # Pull the latest changes from the main branch
+    system('git pull origin main')
+
+    if $?.success?
+      puts "Merged changes from main into the #{branch} branch."
+    else
+      puts "Failed to merge changes from main into the #{branch} branch."
     end
+  else
+    puts "Skipped making the #{branch} branch even with main."
+  end
+end
+
+def make_branches_even_with_main
+  branches = ['qa', 'stage', 'dev']
+
+  branches.each do |branch|
+    make_branch_even_with_main(branch)
   end
 
-  # Push release branch to main
-  system("git push origin #{branch_name}:main")
+  # Switch back to the main branch
+  system('git checkout main')
 
-  # Create new release branch with name format release/so#{number}/date-2-mondays from-today
-  number = `git branch -r | awk -F/ '/release\\/sp/{print $2}' | sort -rn | head -n1`.to_i + 1
-  require 'date'
+  puts "Switched back to the main branch." if $?.success?
+end
 
-today = Date.today
-days_to_next_monday = (1 - today.wday) % 7
-days_to_second_monday = days_to_next_monday + 7
-two_mondays_from_now = today + days_to_second_monday
+# Make branches even with main
+make_branches_even_with_main
 
-date = two_mondays_from_now.strftime('%y-%m-%d')
-  branch_name = "release/sp#{number}/#{date}"
-  system("git checkout -b #{branch_name}")
-  system("git push origin #{branch_name}")
+# Check if branches are even with main
+def branches_even_with_main?
+  branches = ['qa', 'stage', 'dev']
+  result = {}
 
-  puts "Deployment to main and creation of new release branch successful."
-else
-  puts "Deployment cancelled."
-  exit 1
+  branches.each do |branch|
+    cmd = "git diff main...#{branch}"
+    stdout, _, status = Open3.capture3(cmd)
+    result[branch] = stdout.empty? && status.success?
+  end
+
+  result
+end
+
+branch_statuses = branches_even_with_main?
+
+branch_statuses.each do |branch, status|
+  if status
+    p status
+    puts "The #{branch} branch is even with the main branch."
+  else
+    puts "The #{branch} branch is not even with the main branch."
+  end
 end
