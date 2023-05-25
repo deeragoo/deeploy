@@ -28,7 +28,11 @@ def make_branch_even_with_main(branch)
   if confirm == 'y'
     # Pull the latest changes from the main branch
     system('git pull origin main')
-    system("git merge main #{branch}")
+    system("git checkout main")
+    system("git branch -D #{branch}")
+    system("git push origin --delete #{branch}")
+    system("git checkout -b #{branch}")
+    system("git push --set-upstream origin #{branch}")
 
     if $?.success?
       puts "Merged changes from main into the #{branch} branch."
@@ -74,7 +78,6 @@ branch_statuses = branches_even_with_main?
 
 branch_statuses.each do |branch, status|
   if status
-    p status
     puts "The #{branch} branch is even with the main branch."
   else
     puts "The #{branch} branch is not even with the main branch."
