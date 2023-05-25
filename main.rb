@@ -28,6 +28,7 @@ def make_branch_even_with_main(branch)
   if confirm == 'y'
     # Pull the latest changes from the main branch
     system('git pull origin main')
+    system("git merge main #{branch}")
 
     if $?.success?
       puts "Merged changes from main into the #{branch} branch."
