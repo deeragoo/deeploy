@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # Get the branch name from the command-line argument
-branch_name = ARGV[0]
+branch_name = 'qa'
 
 # Check if a branch name is provided
 if branch_name.nil?
@@ -38,9 +38,16 @@ if confirm == "y"
   system("git push origin #{branch_name}:main")
 
   # Create new release branch with name format release/so#{number}/date-2-mondays from-today
-  number = `git branch -r | awk -F/ '/release\\/so/{print $2}' | sort -rn | head -n1`.to_i + 1
-  date = Time.now.strftime('%Y-%m-%d')
-  branch_name = "release/so#{number}/#{date}-2-mondays"
+  number = `git branch -r | awk -F/ '/release\\/sp/{print $2}' | sort -rn | head -n1`.to_i + 1
+  require 'date'
+
+today = Date.today
+days_to_next_monday = (1 - today.wday) % 7
+days_to_second_monday = days_to_next_monday + 7
+two_mondays_from_now = today + days_to_second_monday
+
+date = two_mondays_from_now.strftime('%y-%m-%d')
+  branch_name = "release/sp#{number}/#{date}"
   system("git checkout -b #{branch_name}")
   system("git push origin #{branch_name}")
 
