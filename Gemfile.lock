@@ -5,6 +5,10 @@ GEM
       faraday-net_http (>= 2.0, < 3.1)
       ruby2_keywords (>= 0.0.4)
     faraday-net_http (3.0.2)
+    nio4r (2.5.9)
+    puma (6.2.2)
+      nio4r (~> 2.0)
+    rack (3.0.7)
     ruby2_keywords (0.0.5)
 
 PLATFORMS
@@ -12,6 +16,8 @@ PLATFORMS
 
 DEPENDENCIES
   faraday (~> 2.7)
+  puma (~> 6.2)
+  rack (~> 3.0)
 
 BUNDLED WITH
    2.1.4
