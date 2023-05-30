@@ -4,7 +4,6 @@ FROM ruby:latest
 # Set the working directory inside the Docker image
 WORKDIR /app
 
-ENV DOCKER_HOST=unix:///System/Volumes/Data/Users/ragoo/projects/.docker/run/docker.sock
 
 # Copy the app code from your local machine to the Docker image
 COPY . /app
@@ -16,4 +15,4 @@ RUN bundle install
 EXPOSE 6161
 
 # Define the command to run your app
-CMD ["ruby", "app.rb"]
+CMD ["rerun", "--pattern", "app.rb", "--", "puma"]

@@ -11,3 +11,5 @@ gem "faraday", "~> 2.7"
 gem "puma", "~> 6.2"
 
 gem "rack", "~> 3.0"
+
+gem "rerun", "~> 0.14.0"

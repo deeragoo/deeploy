@@ -3,6 +3,6 @@ services:
   web:
     build: .
     ports:
-      - '6161:6161'
-    environment:
-      - DOCKER_HOST=unix:///System/Volumes/Data/Users/ragoo/projects/.docker/run/docker.sock
+      - '9292:9292'
+    tty: true
+    command: rerun --pattern app.rb -- puma
